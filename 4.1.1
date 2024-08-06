@@ -1,0 +1,18 @@
+#What happens if the exchange process continues for n step rather than [n/2] steps ? 
+def reverse_array!(array)
+    n = array.length
+    (0..n).each do |i|
+        t = array[i]
+        array[i] = array[n - i - 1]
+        array[n - i + 1] = t
+    end
+ array
+end
+
+array = [1,2,3,4,5]
+puts "Original array #{array}"
+reverse_array = reverse_array!(array)
+puts "Reverse Array #{reverse_array}"
+
+#If the exchange process continues for n steps rather than n/2 steps, the array elements will be swapped twice for each index in the array.
+#This means that each element will end up in its original position after being swapped twice, effectively undoing the reversal.
