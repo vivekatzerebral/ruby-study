@@ -1,0 +1,19 @@
+# Dessign the algo that palce the k th element of an array in position 1, the (k+1)th element in position 2 etc. The original 1st element is placed at (n-k+1) and so on.  
+
+def rearrange_array(arr, k)
+    n = arr.length
+    new_arr = Array.new(n)
+  
+    arr.each_with_index do |element, index|
+      new_index = (index - k) % n
+      new_arr[new_index] = element
+    end
+  
+    new_arr
+  end
+  
+  arr = [1, 2, 3, 4, 5]
+  k = 2
+  new_arr = rearrange_array(arr, k)
+  puts "Original array: #{arr.inspect}"
+  puts "Rearranged array: #{new_arr.inspect}"
