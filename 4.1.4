@@ -1,0 +1,21 @@
+# design an algorithm in ruby that rearrange the elements of  an array  so that  all those originally stored at odd suffixes are palced before those at even suffixes.  
+
+def rearrange_array(arr)
+    odd_index_elements = []
+    even_index_elements = []
+  
+    arr.each_with_index do |element, index|
+      if index % 2 == 0
+        even_index_elements << element
+      else
+        odd_index_elements << element
+      end
+    end
+  
+    odd_index_elements + even_index_elements
+  end
+  
+  original_array = [1, 2, 3, 4, 5, 6, 7, 8]
+  rearranged_array = rearrange_array(original_array)
+  puts "Original array: #{original_array}"
+  puts "Rearranged array: #{rearranged_array}"
