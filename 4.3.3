@@ -1,0 +1,34 @@
+#find the maximum in a set and position 1- where it first occurs 2- where it last occurs
+
+def occur_position(numbers)
+    max_value = numbers[0]
+    first_position = 0
+    last_position = 0
+    for i in 1...(numbers.size) 
+        if max_value < numbers[i]
+            max_value = numbers[i]
+            first_position = i
+            last_position = i
+        elsif max_value == numbers[i]
+            last_position = i
+        end
+    end
+       return  max_value,first_position,last_position
+end
+
+puts"Enter the total number"
+num = gets.chomp.to_i
+
+numbers= []
+puts"Enter the #{num}"
+num.times do
+    numbers << gets.chomp.to_i
+end
+
+result = occur_position(numbers)
+puts"Result is #{result}"
+
+max_value, first_position,last_position = occur_position(numbers)
+puts "The maximum value is #{max_value}"
+puts "It first occurce at position #{first_position + 1}."
+puts "It last occurce at position #{last_position + 1}."
