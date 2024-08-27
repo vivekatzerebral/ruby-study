@@ -1,0 +1,18 @@
+#find the maximum absolute difference between adjecent pairs of elements in an array of n elemens 
+
+def diff(numbers)
+differences = numbers.each_cons(2).map { |a, b| b - a }
+end
+
+puts "Enter the total numbers that enter"
+num = gets.chomp.to_i
+
+numbers = []
+
+num.times do
+puts "Enter the number"
+numbers << gets.chomp.to_i
+end
+
+result = diff(numbers)
+puts "Adjecent pais are #{result}"
