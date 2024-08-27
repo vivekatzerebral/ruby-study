@@ -1,0 +1,15 @@
+#find second largest value in an array of n elements. 
+
+puts "Enter the total number of elements"
+num = gets.chomp.to_i 
+a = [] 
+puts "Enter the numbers:"
+num.times do
+  a << gets.chomp.to_i 
+end
+
+ a.uniq.length >= 2
+  sorted_unique_numbers = a.uniq.sort.reverse
+  second_largest = sorted_unique_numbers[1]
+  puts "The second largest number is #{second_largest}"
+
