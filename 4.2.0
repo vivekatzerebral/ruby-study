@@ -1,0 +1,30 @@
+# Function to count the number of students that obtained each possible mark
+def count_marks(students)
+    mark_counts = Hash.new(0)
+  
+    students.each do |marks|
+      marks.each do |mark|
+        mark_counts[mark] += 1
+      end
+    end
+  
+    mark_counts
+  end
+  
+  # Get inputs from the user
+  puts "Enter the number of students:"
+  num_students = gets.chomp.to_i
+  
+  students = []
+  
+  num_students.times do |i|
+    puts "Enter the student's #{i + 1}"
+    marks = gets.chomp.to_i
+    students << marks
+  end
+  
+  # Calculate and print the count of each mark
+  mark_counts = count_marks(students)
+  mark_counts.each do |mark, count|
+    puts "Mark: #{mark}, Count: #{count}"
+  end
