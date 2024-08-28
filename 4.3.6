@@ -1,0 +1,21 @@
+#Find the position of number x (if it occurrs) in an array on n  elements.
+
+puts "Enter the total number"
+num = gets.chomp.to_i
+
+numbers = []
+num.times do
+puts "Enther the number"
+numbers << gets.chomp.to_i
+end
+
+puts "Enther the number to find position"
+x  = gets.chomp.to_i
+
+position_of_num = numbers.index(x)
+if position_of_num.nil?
+    puts"Number is not in array"
+else
+    puts "#{x} number is on position #{position_of_num}"
+end
+
