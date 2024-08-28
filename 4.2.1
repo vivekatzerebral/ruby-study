@@ -1,0 +1,28 @@
+#Modiefy algo that obtained only for each ten percentile rang rsther than for each indivdual mark 
+
+def count_percentile_ranges(students)
+    range_counts = Hash.new(0)
+  
+    students.each do |mark|
+      range = (mark / 10) * 10
+      range_counts[range] += 1
+    end
+  
+    range_counts
+  end
+  
+  puts "Enter the number of students:"
+  num_students = gets.chomp.to_i
+  
+  students = []
+  
+  num_students.times do |i|
+    puts "Enter the mark for student #{i + 1}:"
+    mark = gets.chomp.to_i
+    students << mark
+  end
+  
+  range_counts = count_percentile_ranges(students)
+  range_counts.sort.each do |range, count|
+    puts "Range: #{range}-#{range + 9}, Count: #{count}"
+  end
