@@ -1,0 +1,52 @@
+#Find the minimum, mximum, and how many they both occur in an array of n elements
+
+def max_min(numbers)
+    max_num = numbers[0]
+    min_num = numbers[0]
+    for i in 1...(numbers.size)
+        if max_num <= numbers[i]
+            max_num = numbers[i]
+        else min_num >= numbers[i] 
+            min_num = numbers[i]
+        end
+    end
+    puts"Maximum number is #{max_num}"
+    puts "Minimum number is #{min_num}"
+    result = find_count(max_num,min_num,numbers)
+end
+
+
+def find_count(max_num, min_num, numbers)
+    max_count = 0
+    min_count = 0
+    for i in 1...(numbers.size)
+        if max_num == numbers[i]
+              max_count += 1
+        else min_count == numbers[i]
+                min_count += 1
+        end
+    end
+    puts "Maximum number count is #{max_count}"
+    puts"Minimum number count is #{min_count}"
+end
+
+
+puts "Enter the total number"
+num = gets.chomp.to_i
+
+numbers = []
+
+num.times do 
+puts "Enter the number"
+numbers << gets.chomp.to_i
+end
+
+result = max_min(numbers)
+
+
+
+
+
+
+
+
