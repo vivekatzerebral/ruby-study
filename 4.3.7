@@ -1,0 +1,25 @@
+#find the max number in set by comparing with each number with all other numbers.
+
+def compare(numbers)   
+    max_number = numbers.first
+ numbers.each do |current_number|
+  numbers.each do |other_number|
+    next if current_number == other_number
+    max_number = current_number if max_number <= current_number
+ end
+ end
+ puts "Maximum nuumber is #{max_number}" 
+end
+
+puts "Enter the total numbers you want to insert"
+num = gets.chomp.to_i
+
+numbers = []
+num.times do
+puts "Enter the number"
+numbers << gets.chomp.to_i
+end
+result = compare(numbers)
+
+
+
