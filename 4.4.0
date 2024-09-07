@@ -1,0 +1,28 @@
+# 1 - Method using array.uniqu
+#  array = [1,1,2,2,3,3,4,4,5,5,6,7,8,9,9,9]
+#  unique_array  = array.uniq 
+#  puts unique_array
+
+
+
+
+
+# 2 - Method 
+num = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 7, 8, 9, 9, 9]
+
+def remove_duplicates(array)
+  return array if array.empty?
+
+  unique_array = [array[0]]
+
+  array.each_with_index do |num, i|
+    if array[i] != array[i - 1] && i > 0
+      unique_array << num
+    end
+  end
+
+  unique_array
+end
+
+result = remove_duplicates(num)
+puts result.inspect
