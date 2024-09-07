@@ -1,0 +1,12 @@
+#Delete from aan ordered array all elements that occurs more then k times.
+
+def delete_duplicates(num,k)
+    num.delete_if {|n| num.count(n) > k}
+    num
+end
+
+  num = [1,2,2,3,3,3,4,4,4,4,5,5,5,5,5]
+  puts "Enter the number of occurrences to delete numbers that appear more than k times."
+  k = gets.to_i
+  
+  puts delete_duplicates(num, k).inspect
