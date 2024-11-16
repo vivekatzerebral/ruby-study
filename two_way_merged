@@ -1,0 +1,32 @@
+def two_way_merged(arr1, arr2)
+    merged = []
+    i = 0
+    j = 0
+
+    while i < arr1.length && j < arr2.length
+        if arr1[i] <= arr2[j]
+            merged << arr1[i]
+            i += 1
+        else
+         merged << arr2[j]
+         j += 1
+        end
+    end
+
+    while i < arr1.length
+        merged << arr1[i]
+        i += 1
+    end
+
+    while j < arr2.length
+        merged << arr2[j]
+        j += 1
+    end
+
+    merged
+end
+
+arr1 =[1,3,5,7]
+arr2 = [2,4,6,8]
+merged_array = two_way_merged(arr1,arr2)
+puts "After sorting array is : #{merged_array}"
