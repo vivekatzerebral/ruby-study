@@ -1,0 +1,44 @@
+def merge_files(file1, file2, output_file)
+    # Open the files
+    f1 = File.open(file1, "r")
+    f2 = File.open(file2, "r")
+    result = []
+  
+    # Read the first lines from both files
+    data1 = f1.gets&.chomp
+    data2 = f2.gets&.chomp
+  
+    # Perform the merge
+    while data1 || data2
+      if data1 && data2
+        # Compare and merge
+        if data1.to_i <= data2.to_i
+          result << data1
+          data1 = f1.gets&.chomp
+        else
+          result << data2
+          data2 = f2.gets&.chomp
+        end
+      elsif data1
+        # File 2 is exhausted; append the rest of File 1
+        result << data1
+        data1 = f1.gets&.chomp
+      elsif data2
+        # File 1 is exhausted; append the rest of File 2
+        result << data2
+        data2 = f2.gets&.chomp
+      end
+    end
+  
+    # Write merged data to the output file
+    File.open(output_file, "w") do |out|
+      result.each { |line| out.puts(line) }
+    end
+  
+    # Close the files
+    f1.close
+    f2.close
+  end
+  
+  # Example usage
+  merge_files("file1.txt", "file2.txt", "output.txt")
