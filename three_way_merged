@@ -1,0 +1,43 @@
+def three_way_merged(arr1, arr2, arr3)
+    merged = []
+    i = 0 
+    j = 0
+    k = 0
+
+    while i <= arr1.length && j <= arr2.length && k <= arr3.length
+        if arr1[i] <= arr2[j]
+            merged << arr1[i]
+            i += 1
+        elsif arr2[j] <= arr2.length
+            merged << arr2[j]
+             j += 1
+        else
+            arr3[k] <= arr3.length
+            merged << arr[k]
+            k += 1
+        end
+    end
+
+    while i < arr1.length
+        merged << arr1[i]
+        i += 1
+    end
+
+    while j < arr2.length
+        merged << arr[j]
+        j += 1
+    end
+
+    while  k < arr3.length
+        merged << arr3[k]
+        k += 1
+    end
+
+    merged
+end
+
+arr1 = [1,2,3,4,5]
+arr2 = [6,7,8,9,10]
+arr3 = [11,12,13,14,15]
+merge_array = three_way_merged(arr1,arr2,arr3)
+puts "After merging three array, the merged array is #{merge_array}"
