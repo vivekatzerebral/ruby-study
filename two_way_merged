@@ -1,5 +1,5 @@
-def two_way_merged(arr1, arr2)
-    merged = []
+def two_way_merged(arr1,arr2)
+    merged =[]
     i = 0
     j = 0
 
@@ -8,8 +8,8 @@ def two_way_merged(arr1, arr2)
             merged << arr1[i]
             i += 1
         else
-         merged << arr2[j]
-         j += 1
+            merged << arr2[j]
+            j += 1
         end
     end
 
@@ -22,11 +22,28 @@ def two_way_merged(arr1, arr2)
         merged << arr2[j]
         j += 1
     end
-
-    merged
+merged
 end
 
-arr1 =[1,3,5,7]
-arr2 = [2,4,6,8]
+
+arr1 = []
+puts "How many elements do you want to enter for the first array?"
+size1 = gets.chomp.to_i
+puts "Enter the elements for the first array:"
+size1.times do
+    element = gets.chomp.to_i
+    arr1 << element
+end
+
+arr2 = []
+puts "How many elements do you want to enter for the second array?"
+size2 = gets.chomp.to_i
+puts "Enter the elements for the second array:"
+size2.times do
+    element = gets.chomp.to_i
+    arr2 << element
+end
+
+
 merged_array = two_way_merged(arr1,arr2)
-puts "After sorting array is : #{merged_array}"
+puts "After merging , the array is #{merged_array}"
