@@ -1,0 +1,237 @@
+require 'json'
+require 'logger'
+require 'rainbow'
+require 'elasticsearch'
+require 'csv'
+require 'net/smtp'
+require 'mail'
+require 'pry'
+require 'mc_elastic_adapter'
+require 'date'
+
+es_config_filepath = ENV["ES_CONFIG_FILEPATH"] || "/etc/elastic/prd-elastic-config.json"
+
+@mc_elastic_adapter = McElasticAdapter::Adapter.new(opts: es_config_filepath)
+
+def email_ids
+  ["uday.mahajan@zerebral.co.in"] # Update with valid email addresses
+end
+
+def send_mail_notification(csv_filenames)
+  subject = "[CRONJOB] Automate review process for dealers #{Date.today}"
+
+  Mail.defaults do
+    delivery_method :smtp, address: "email-smtp.us-east-2.amazonaws.com",
+    port: 587,
+    user_name: "AKIAYNMNNJJDAANG4T5X",
+    password: "BGmYCNGOJwvmVmoFu9GscZo4eCuz5dhDDpPG48OF7C9Z",
+    domain: "marketcheck.com",
+    from: "anand@marketcheck.com",
+    enable_ssl: true
+  end
+
+  mail = Mail.new do
+    from    'anand@marketcheck.com'
+    to      email_ids.join(", ")
+    subject subject
+    body    "Attached are the reports for Classified Domains, Seed Matches, Seed Target Matches, and Domain Mismatches."
+    csv_filenames.each do |filename|
+      add_file filename: File.basename(filename), content: File.read(filename)
+    end
+  end
+
+  mail.deliver
+end
+
+def fetch_classified_domains
+  response = @mc_elastic_adapter.search(
+    index: "classified_domains",
+    query: {
+      size: 10000,
+      query: { match_all: {} }
+    }
+  )
+
+  domains = []
+  if response && response["hits"] && response["hits"]["hits"]
+    response["hits"]["hits"].each do |hit|
+      domain = hit["_source"]["domain"]
+      status = hit["_source"]["status"]
+      domains << { domain: domain, status: status }
+    end
+  end
+  domains
+end
+
+def fetch_seed_data(domain)
+  response = @mc_elastic_adapter.search(
+    index: "seed",
+    query: {
+      _source: false,
+      query: {
+        bool: {
+          must: [
+            { match: { domain: domain } },
+            { match: { status: "active" } }
+          ]
+        }
+      },
+      fields: ["sub_vertical.id", "domain", "status", "_id"]
+    }
+  )
+
+  seed_results = []
+  if response && response["hits"] && response["hits"]["hits"]
+    response["hits"]["hits"].each do |hit|
+      fields = hit["fields"]
+      seed_results << {
+        sub_vertical_id: fields["sub_vertical.id"]&.first,
+        domain: fields["domain"]&.first,
+        status: fields["status"]&.first,
+        seed: hit["_id"]
+      }
+    end
+  end
+  seed_results
+end
+
+def fetch_seed_target_data(seed)
+  response = @mc_elastic_adapter.search(
+    index: "seed_target",
+    query: {
+      _source: false,
+      query: {
+        bool: {
+          must: [
+            { match: { "seed.id": seed } },
+            { match: { status: "active" } }
+          ]
+        }
+      },
+      fields: ["sub_vertical.id", "seed_results", "status", "_id", "seed.id"]
+    }
+  )
+
+  seed_target_results = []
+  if response && response["hits"] && response["hits"]["hits"]
+    response["hits"]["hits"].each do |hit|
+      fields = hit["fields"]
+      seed_target_results << {
+        sub_vertical_id: fields["sub_vertical.id"]&.first,
+        seed_results: fields["seed_results"]&.first,
+        status: fields["status"]&.first,
+        seed_target: hit["_id"],
+        seed: fields["seed.id"]&.first
+      }
+    end
+  end
+  seed_target_results
+end
+
+def generate_classified_report
+  classified_domains = fetch_classified_domains
+  csv_data = [["Classified Domain", "Classified Status"]]
+
+  classified_domains.each do |domain|
+    csv_data << [domain[:domain], domain[:status]]
+  end
+
+  filename = "/tmp/classified_domains_report_#{Date.today.strftime('%Y%m%d')}.csv"
+  CSV.open(filename, "wb") { |csv| csv_data.each { |row| csv << row } }
+  filename
+end
+
+def generate_seed_report
+  classified_domains = fetch_classified_domains
+  csv_data = [["Seed Domain", "Seed Status", "Sub Vertical ID", "Seed ID"]]
+
+  classified_domains.each do |classified|
+    domain = classified[:domain]
+    seed_results = fetch_seed_data(domain)
+
+    seed_results.each do |result|
+      csv_data << [
+        result[:domain],
+        result[:status],
+        result[:sub_vertical_id],
+        result[:seed]
+      ]
+    end
+  end
+
+  filename = "/tmp/seed_report_#{Date.today.strftime('%Y%m%d')}.csv"
+  CSV.open(filename, "wb") { |csv| csv_data.each { |row| csv << row } }
+  filename
+end
+
+def generate_seed_target_report
+  classified_domains = fetch_classified_domains
+  csv_data = [["Seed Domain", "Seed Status", "Sub Vertical ID", "Seed Target ID", "Seed ID"]]
+
+  classified_domains.each do |classified|
+    domain = classified[:domain]
+    seed_results = fetch_seed_data(domain)
+
+    seed_results.each do |seed|
+      seed_target_results = fetch_seed_target_data(seed[:seed])
+
+      seed_target_results.each do |result|
+        csv_data << [
+          seed[:domain],
+          seed[:status],
+          result[:sub_vertical_id],
+          result[:seed_target],
+          result[:seed]
+        ]
+      end
+    end
+  end
+
+  filename = "/tmp/seed_target_report_#{Date.today.strftime('%Y%m%d')}.csv"
+  CSV.open(filename, "wb") { |csv| csv_data.each { |row| csv << row } }
+  filename
+end
+
+def find_mismatched_domains
+  classified_domains = fetch_classified_domains
+  mismatched_entries = [["Seed Domain", "Seed ID", "Mismatch Reason"]]
+
+  classified_domains.each do |classified|
+    domain = classified[:domain]
+
+    seed_results = fetch_seed_data(domain)
+
+    seed_results.each do |seed|
+      seed_target_results = fetch_seed_target_data(seed[:seed])
+
+      if seed_target_results.empty?
+        mismatched_entries << [seed[:domain], seed[:seed], "No matching seed_target found"]
+      else
+        seed_target_results.each do |result|
+          if seed[:domain] != result[:sub_vertical_id]
+            mismatched_entries << [
+              seed[:domain],
+              seed[:seed],
+              "Mismatch with seed_target sub_vertical_id"
+            ]
+          end
+        end
+      end
+    end
+  end
+
+  filename = "/tmp/mismatched_domains_report_#{Date.today.strftime('%Y%m%d')}.csv"
+  CSV.open(filename, "wb") { |csv| mismatched_entries.each { |row| csv << row } }
+  filename
+end
+
+def execute_and_generate_reports
+  classified_csv = generate_classified_report
+  seed_csv = generate_seed_report
+  seed_target_csv = generate_seed_target_report
+  mismatch_csv = find_mismatched_domains
+
+  send_mail_notification([classified_csv, seed_csv, seed_target_csv, mismatch_csv])
+end
+
+execute_and_generate_reports
